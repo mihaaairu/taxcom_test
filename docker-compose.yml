@@ -1,0 +1,30 @@
+version: '3.8'
+name: invoices_registry
+services:
+
+  db:
+    container_name: postgres_db
+    image: postgres:latest
+    env_file:
+      - .env
+    volumes:
+      - ./postgre_sql/01_postgres_init.sql:/docker-entrypoint-initdb.d/01_postgres_init.sql
+      - ./postgre_sql/02_populate_database.sql:/docker-entrypoint-initdb.d/02_populate_database.sql
+
+      - postgres-data:/var/lib/postgresql/registry_app
+    ports:
+      - "5432:5432"
+
+  app:
+    container_name: fast_api_service
+    build: ./app
+    depends_on:
+      - db
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+
+
+volumes:
+  postgres-data:
